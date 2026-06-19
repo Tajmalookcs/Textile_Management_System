@@ -1,8 +1,9 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Customer, Invoice, InvoiceItem
 from .serializers import CustomerSerializer, InvoiceSerializer, InvoiceItemSerializer
+from apps.inventory.stock_service import deduct_stock_for_invoice
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -21,18 +22,30 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         date_from = self.request.query_params.get('date_from')
-        date_to = self.request.query_params.get('date_to')
-        status = self.request.query_params.get('status')
-        if date_from:
-            qs = qs.filter(date__gte=date_from)
-        if date_to:
-            qs = qs.filter(date__lte=date_to)
-        if status:
-            qs = qs.filter(status=status)
+        date_to   = self.request.query_params.get('date_to')
+        status_f  = self.request.query_params.get('status')
+        if date_from: qs = qs.filter(date__gte=date_from)
+        if date_to:   qs = qs.filter(date__lte=date_to)
+        if status_f:  qs = qs.filter(status=status_f)
         return qs
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        old_status = self.get_object().status
+        instance   = serializer.save()
+        new_status = instance.status
+
+        # Trigger stock deduction when invoice transitions to 'paid'
+        if old_status != 'paid' and new_status == 'paid':
+            try:
+                log = deduct_stock_for_invoice(instance, self.request.user)
+                # log is available for debugging; silently succeeds in prod
+            except Exception as e:
+                # Stock deduction failure should NOT block the invoice save
+                import logging
+                logging.getLogger(__name__).error(f'Stock deduction failed for invoice {instance.invoice_number}: {e}')
 
     @action(detail=False, methods=['get'], url_path='next_number')
     def next_number(self, request):
