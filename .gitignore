@@ -1,0 +1,60 @@
+# ── Root level data/research files ──────────────────────────────────────────
+research/
+chunk_*.json
+tariff*.json
+tariff*.xlsx
+tariff - Copy.json
+Tariff-*.pdf
+
+# ── Python / Django ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Django
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/media/
+backend/*.log
+backend/staticfiles/
+backend/static/
+
+# Environment variables
+.env
+backend/.env
+*.env.local
+
+# ── Node / React ──────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+github.txt
