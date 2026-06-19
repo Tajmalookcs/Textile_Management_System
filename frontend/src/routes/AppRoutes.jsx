@@ -14,6 +14,8 @@ import InvoicePrint from '../pages/sales/InvoicePrint'
 import CustomerList from '../pages/customers/CustomerList'
 import Reports from '../pages/reports/Reports'
 import Settings from '../pages/settings/Settings'
+import Users from '../pages/users/Users'
+import Accounts from '../pages/accounts/Accounts'
 
 function Protected({ children }) {
   const { user } = useAuth()
@@ -39,6 +41,8 @@ export default function AppRoutes() {
         <Route path="/customers"  element={<Protected><CustomerList /></Protected>} />
         <Route path="/reports"    element={<Protected><Reports /></Protected>} />
         <Route path="/settings"   element={<Protected><Settings /></Protected>} />
+        <Route path="/users"      element={<Protected><Users /></Protected>} />
+        <Route path="/accounts"   element={<Protected><Accounts /></Protected>} />
         <Route path="*"           element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
