@@ -1,9 +1,14 @@
-from rest_framework import viewsets, filters, status
+import logging
+from django.utils import timezone
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Customer, Invoice, InvoiceItem
 from .serializers import CustomerSerializer, InvoiceSerializer, InvoiceItemSerializer
+from .pral_service import submit_invoice
 from apps.inventory.stock_service import deduct_stock_for_invoice
+
+logger = logging.getLogger(__name__)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -37,15 +42,26 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         instance   = serializer.save()
         new_status = instance.status
 
-        # Trigger stock deduction when invoice transitions to 'paid'
+        # ── FBR submission: trigger when invoice transitions to 'issued' ──
+        if old_status != 'issued' and new_status == 'issued':
+            result = submit_invoice(instance)
+            if result['success']:
+                instance.fbr_status       = 'accepted'
+                instance.fbr_irn          = result.get('irn', '')
+                instance.fbr_qr_code      = result.get('qr_code', '')
+                instance.fbr_submitted_at = timezone.now()
+                instance.fbr_error        = ''
+            else:
+                instance.fbr_status = 'error'
+                instance.fbr_error  = result.get('error', 'Unknown error')
+            instance.save(update_fields=['fbr_status', 'fbr_irn', 'fbr_qr_code', 'fbr_submitted_at', 'fbr_error'])
+
+        # ── Stock deduction: trigger when invoice transitions to 'paid' ──
         if old_status != 'paid' and new_status == 'paid':
             try:
-                log = deduct_stock_for_invoice(instance, self.request.user)
-                # log is available for debugging; silently succeeds in prod
+                deduct_stock_for_invoice(instance, self.request.user)
             except Exception as e:
-                # Stock deduction failure should NOT block the invoice save
-                import logging
-                logging.getLogger(__name__).error(f'Stock deduction failed for invoice {instance.invoice_number}: {e}')
+                logger.error(f'Stock deduction failed for invoice {instance.invoice_number}: {e}')
 
     @action(detail=False, methods=['get'], url_path='next_number')
     def next_number(self, request):
