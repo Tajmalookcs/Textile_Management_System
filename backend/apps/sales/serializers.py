@@ -6,19 +6,19 @@ class CustomerSerializer(serializers.ModelSerializer):
     ntn_number = serializers.CharField(source='ntn', read_only=True)
 
     class Meta:
-        model = Customer
+        model  = Customer
         fields = '__all__'
 
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
-    value_excl_tax    = serializers.ReadOnlyField()
-    sales_tax_amount  = serializers.ReadOnlyField()
-    value_incl_tax    = serializers.ReadOnlyField()
-    product_name      = serializers.CharField(source='product.name', read_only=True, default='')
-    pct_code_display  = serializers.CharField(source='pct_code.pct_code', read_only=True, default='')
+    value_excl_tax   = serializers.ReadOnlyField()
+    sales_tax_amount = serializers.ReadOnlyField()
+    value_incl_tax   = serializers.ReadOnlyField()
+    product_name     = serializers.CharField(source='product.name', read_only=True, default='')
+    pct_code_display = serializers.CharField(source='pct_code.pct_code', read_only=True, default='')
 
     class Meta:
-        model = InvoiceItem
+        model  = InvoiceItem
         fields = '__all__'
 
 
@@ -31,7 +31,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
     customer_address     = serializers.CharField(source='customer.address', read_only=True, default='')
     customer_str         = serializers.CharField(source='customer.str_number', read_only=True, default='')
     customer_ntn         = serializers.CharField(source='customer.ntn', read_only=True, default='')
+    customer_province    = serializers.CharField(source='customer.province', read_only=True, default='')
+    customer_ntn_verified = serializers.BooleanField(source='customer.ntn_verified', read_only=True)
     invoice_no           = serializers.CharField(source='invoice_number', required=False)
+    place_of_supply_display = serializers.SerializerMethodField()
     total_qty            = serializers.SerializerMethodField()
     total_value_excl_tax = serializers.SerializerMethodField()
     total_sales_tax      = serializers.SerializerMethodField()
@@ -40,6 +43,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Invoice
         fields = '__all__'
+
+    def get_place_of_supply_display(self, obj):
+        return obj.get_place_of_supply_display()
 
     def get_total_qty(self, obj):
         return sum(item.quantity for item in obj.items.all())

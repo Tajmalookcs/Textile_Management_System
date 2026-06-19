@@ -50,7 +50,7 @@ export default function Settings() {
   const [tab, setTab] = useState('Company')
 
   // Company form
-  const [form, setForm] = useState({ name: '', address: '', phone: '', str_number: '', ntn_number: '', email: '', city: '', website: '' })
+  const [form, setForm] = useState({ name: '', address: '', phone: '', str_number: '', ntn_number: '', email: '', city: '', website: '', province: 'punjab', business_type: 'services' })
   const [companyId, setCompanyId] = useState(null)
   const [logo, setLogo] = useState(null)
   const [preview, setPreview] = useState(null)
@@ -70,7 +70,7 @@ export default function Settings() {
       const d = Array.isArray(list) ? list[0] : list
       if (d?.id) {
         setCompanyId(d.id)
-        setForm({ name: d.name || '', address: d.address || '', phone: d.phone || '', str_number: d.str_number || '', ntn_number: d.ntn_number || '', email: d.email || '', city: d.city || '', website: d.website || '' })
+        setForm({ name: d.name || '', address: d.address || '', phone: d.phone || '', str_number: d.str_number || '', ntn_number: d.ntn_number || '', email: d.email || '', city: d.city || '', website: d.website || '', province: d.province || 'punjab', business_type: d.business_type || 'services' })
         if (d.logo) setPreview(d.logo)
       }
     }).catch(() => {})
@@ -216,6 +216,24 @@ export default function Settings() {
                       <div>
                         <label className={lbl}>NTN# <span className="text-red-500">*</span></label>
                         <input className={inp} value={form.ntn_number} onChange={e => setForm({ ...form, ntn_number: e.target.value })} placeholder="2212360-1" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className={lbl}>Province <span className="text-red-500">*</span></label>
+                        <select className={inp} value={form.province || 'punjab'} onChange={e => setForm({ ...form, province: e.target.value })}>
+                          {[['punjab','Punjab — PRA'],['sindh','Sindh — SRB'],['kpk','KPK — KPRA'],['balochistan','Balochistan — BRA'],['federal','Federal — FBR'],['ajk','AJK — FBR'],['gb','Gilgit-Baltistan — FBR']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                        </select>
+                        <p className="text-xs text-violet-600 mt-1">Auto-sets which tax authority receives your invoices</p>
+                      </div>
+                      <div>
+                        <label className={lbl}>Business Type <span className="text-red-500">*</span></label>
+                        <select className={inp} value={form.business_type || 'services'} onChange={e => setForm({ ...form, business_type: e.target.value })}>
+                          <option value="goods">Goods (FBR always)</option>
+                          <option value="services">Services (provincial authority)</option>
+                          <option value="both">Both Goods & Services</option>
+                        </select>
+                        <p className="text-xs text-amber-600 mt-1">Services = provincial authority. Goods = FBR always.</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

@@ -1,11 +1,13 @@
 import logging
 from django.utils import timezone
 from rest_framework import viewsets, filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Customer, Invoice, InvoiceItem
 from .serializers import CustomerSerializer, InvoiceSerializer, InvoiceItemSerializer
 from .pral_service import submit_invoice
+from .ntn_lookup import lookup_ntn, lookup_str
 from apps.inventory.stock_service import deduct_stock_for_invoice
 
 logger = logging.getLogger(__name__)
@@ -42,7 +44,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         instance   = serializer.save()
         new_status = instance.status
 
-        # ── FBR submission: trigger when invoice transitions to 'issued' ──
+        # FBR submission on issued
         if old_status != 'issued' and new_status == 'issued':
             result = submit_invoice(instance)
             if result['success']:
@@ -54,14 +56,14 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             else:
                 instance.fbr_status = 'error'
                 instance.fbr_error  = result.get('error', 'Unknown error')
-            instance.save(update_fields=['fbr_status', 'fbr_irn', 'fbr_qr_code', 'fbr_submitted_at', 'fbr_error'])
+            instance.save(update_fields=['fbr_status','fbr_irn','fbr_qr_code','fbr_submitted_at','fbr_error'])
 
-        # ── Stock deduction: trigger when invoice transitions to 'paid' ──
+        # Stock deduction on paid
         if old_status != 'paid' and new_status == 'paid':
             try:
                 deduct_stock_for_invoice(instance, self.request.user)
             except Exception as e:
-                logger.error(f'Stock deduction failed for invoice {instance.invoice_number}: {e}')
+                logger.error(f'Stock deduction failed for {instance.invoice_number}: {e}')
 
     @action(detail=False, methods=['get'], url_path='next_number')
     def next_number(self, request):
@@ -80,3 +82,33 @@ class InvoiceItemViewSet(viewsets.ModelViewSet):
         if invoice:
             qs = qs.filter(invoice_id=invoice)
         return qs
+
+
+# ── NTN / STR Lookup API endpoints ──────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ntn_lookup_view(request):
+    """
+    GET /api/verify/ntn/?ntn=1234567-8
+    Verifies an NTN with FBR and returns taxpayer details.
+    """
+    ntn = request.query_params.get('ntn', '').strip()
+    if not ntn:
+        return Response({'error': 'ntn parameter is required.'}, status=400)
+    result = lookup_ntn(ntn)
+    return Response(result)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def str_lookup_view(request):
+    """
+    GET /api/verify/str/?str=04-05-3200-009-46
+    Verifies a STR# with FBR and detects province from prefix.
+    """
+    str_number = request.query_params.get('str', '').strip()
+    if not str_number:
+        return Response({'error': 'str parameter is required.'}, status=400)
+    result = lookup_str(str_number)
+    return Response(result)

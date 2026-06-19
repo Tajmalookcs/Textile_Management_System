@@ -1,13 +1,18 @@
 from django.db import models
+from apps.core.models import PROVINCE_CHOICES
 
 
 class Customer(models.Model):
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    phone = models.CharField(max_length=100)
-    ntn = models.CharField(max_length=100, blank=True, verbose_name='NTN#')
+    name       = models.CharField(max_length=255)
+    address    = models.TextField(blank=True)
+    phone      = models.CharField(max_length=100, blank=True)
+    ntn        = models.CharField(max_length=100, blank=True, verbose_name='NTN#')
     str_number = models.CharField(max_length=100, blank=True, verbose_name='STR#')
-    is_active = models.BooleanField(default=True)
+    province   = models.CharField(max_length=20, choices=PROVINCE_CHOICES, blank=True, default='punjab', verbose_name='Province')
+    city       = models.CharField(max_length=100, blank=True)
+    is_active  = models.BooleanField(default=True)
+    # FBR verified flag — set True after NTN lookup confirms this customer
+    ntn_verified = models.BooleanField(default=False, verbose_name='NTN Verified')
 
     class Meta:
         verbose_name = 'Customer'
@@ -32,20 +37,23 @@ class Invoice(models.Model):
         ('error',     'Error'),
     ]
 
-    invoice_number = models.CharField(max_length=50, unique=True)
-    customer       = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    date           = models.DateField()
-    status         = models.CharField(max_length=20, choices=STATUS, default='draft')
-    notes          = models.TextField(blank=True)
-    created_by     = models.ForeignKey('users.User', on_delete=models.PROTECT)
-    created_at     = models.DateTimeField(auto_now_add=True)
+    invoice_number   = models.CharField(max_length=50, unique=True)
+    customer         = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    date             = models.DateField()
+    status           = models.CharField(max_length=20, choices=STATUS, default='draft')
+    notes            = models.TextField(blank=True)
+    created_by       = models.ForeignKey('users.User', on_delete=models.PROTECT)
+    created_at       = models.DateTimeField(auto_now_add=True)
 
-    # FBR e-Invoice fields — populated after successful PRAL submission
-    fbr_status     = models.CharField(max_length=20, choices=FBR_STATUS, default='pending')
-    fbr_irn        = models.CharField(max_length=200, blank=True, verbose_name='FBR Invoice Reference Number')
-    fbr_qr_code    = models.URLField(max_length=500, blank=True, verbose_name='FBR QR Code URL')
-    fbr_submitted_at = models.DateTimeField(null=True, blank=True, verbose_name='FBR Submission Time')
-    fbr_error      = models.TextField(blank=True, verbose_name='FBR Error Message')
+    # Place of supply — legally determines which tax authority gets the money
+    place_of_supply  = models.CharField(max_length=20, choices=PROVINCE_CHOICES, default='punjab', verbose_name='Place of Supply')
+
+    # FBR e-Invoice fields
+    fbr_status       = models.CharField(max_length=20, choices=FBR_STATUS, default='pending')
+    fbr_irn          = models.CharField(max_length=200, blank=True, verbose_name='FBR Invoice Reference Number')
+    fbr_qr_code      = models.URLField(max_length=500, blank=True, verbose_name='FBR QR Code URL')
+    fbr_submitted_at = models.DateTimeField(null=True, blank=True)
+    fbr_error        = models.TextField(blank=True)
 
     class Meta:
         verbose_name = 'Invoice'
@@ -68,20 +76,17 @@ class Invoice(models.Model):
 
 
 class InvoiceItem(models.Model):
-    invoice       = models.ForeignKey(Invoice, related_name='items', on_delete=models.CASCADE)
-    product       = models.ForeignKey('products.Product', null=True, blank=True, on_delete=models.SET_NULL)
-    pct_code      = models.ForeignKey('products.PCTCode', null=True, blank=True, on_delete=models.SET_NULL)
-    description   = models.CharField(max_length=255)
-    quantity      = models.DecimalField(max_digits=12, decimal_places=3)
-    rate          = models.DecimalField(max_digits=12, decimal_places=2)
+    invoice        = models.ForeignKey(Invoice, related_name='items', on_delete=models.CASCADE)
+    product        = models.ForeignKey('products.Product', null=True, blank=True, on_delete=models.SET_NULL)
+    pct_code       = models.ForeignKey('products.PCTCode', null=True, blank=True, on_delete=models.SET_NULL)
+    description    = models.CharField(max_length=255)
+    quantity       = models.DecimalField(max_digits=12, decimal_places=3)
+    rate           = models.DecimalField(max_digits=12, decimal_places=2)
     sales_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=18.0)
 
     class Meta:
         verbose_name = 'Invoice Item'
         verbose_name_plural = 'Invoice Items'
-
-    def __str__(self):
-        return f"{self.product} x {self.quantity} @ {self.rate}"
 
     @property
     def value_excl_tax(self):
