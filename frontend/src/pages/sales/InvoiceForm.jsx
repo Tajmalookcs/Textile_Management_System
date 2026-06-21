@@ -175,6 +175,10 @@ function CustomerSelect({ value, display, onChange }) {
 }
 
 // ─── Main Form ───────────────────────────────────────────────────────────────
+const CellInput = ({ className = '', ...props }) => (
+  <input className={`w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400 bg-gray-50 ${className}`} {...props} />
+)
+
 export default function InvoiceForm() {
   const navigate   = useNavigate()
   const { id }     = useParams()
@@ -303,9 +307,6 @@ export default function InvoiceForm() {
   }
 
   const InputCls = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 bg-gray-50 hover:bg-white transition-all"
-  const CellInput = ({ className = '', ...props }) => (
-    <input className={`w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-violet-400 bg-gray-50 ${className}`} {...props} />
-  )
 
   return (
     <Layout>

@@ -45,15 +45,15 @@ export default function PurchaseOrders() {
         api.get('/purchase-orders/'),
         api.get('/suppliers/'),
       ]);
-      setOrders(ordersRes.data);
-      setSuppliers(suppliersRes.data);
+      setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : (ordersRes.data.results ?? []));
+      setSuppliers(Array.isArray(suppliersRes.data) ? suppliersRes.data : (suppliersRes.data.results ?? []));
     } catch {
       setOrders([]);
       setSuppliers([]);
     }
     try {
       const prodRes = await api.get('/products/');
-      setProducts(prodRes.data);
+      setProducts(Array.isArray(prodRes.data) ? prodRes.data : (prodRes.data.results ?? []));
     } catch {
       setProducts([]);
     }

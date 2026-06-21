@@ -18,7 +18,7 @@ export default function Suppliers() {
     setLoading(true);
     try {
       const res = await api.get('/suppliers/');
-      setSuppliers(res.data);
+      setSuppliers(Array.isArray(res.data) ? res.data : (res.data.results ?? []));
     } catch {
       setSuppliers([]);
     } finally {

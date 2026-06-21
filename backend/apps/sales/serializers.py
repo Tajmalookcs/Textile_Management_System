@@ -43,6 +43,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Invoice
         fields = '__all__'
+        read_only_fields = ['created_by', 'created_at', 'fbr_irn', 'fbr_qr_code', 'fbr_submitted_at', 'fbr_error']
 
     def get_place_of_supply_display(self, obj):
         return obj.get_place_of_supply_display()

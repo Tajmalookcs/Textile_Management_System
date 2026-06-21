@@ -14,6 +14,7 @@ class StockTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockTransaction
         fields = '__all__'
+        read_only_fields = ['created_by', 'created_at']
 
     def get_created_by_detail(self, obj):
         return {'id': obj.created_by.id, 'username': obj.created_by.username}
