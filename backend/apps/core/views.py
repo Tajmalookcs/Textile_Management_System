@@ -10,7 +10,12 @@ logger = logging.getLogger(__name__)
 class CompanySettingsViewSet(viewsets.ModelViewSet):
     queryset = CompanySettings.objects.all()
     serializer_class = CompanySettingsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        # Allow unauthenticated GET (list/retrieve) so login page can show logo & company name
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         try:

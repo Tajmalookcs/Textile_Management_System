@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import axios from 'axios'
 
 const features = [
   { icon: '✓', text: 'FBR Sales Tax Invoice (SRO 288/2026)' },
@@ -13,9 +14,18 @@ const features = [
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ username: '', password: '' })
-  const [error, setError] = useState('')
+  const [form, setForm]       = useState({ username: '', password: '' })
+  const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
+  const [company, setCompany] = useState(null)
+
+  useEffect(() => {
+    axios.get('/api/company/').then(r => {
+      const data = r.data
+      const c = data.results?.[0] || data[0] || (Array.isArray(data) ? data[0] : data) || null
+      if (c?.name) setCompany(c)
+    }).catch(() => {})
+  }, [])
 
   const handleSubmit = async e => {
     e.preventDefault(); setLoading(true); setError('')
@@ -38,9 +48,14 @@ export default function Login() {
         <div className="max-w-lg">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-2xl shadow-violet-500/40"
-              style={{background:'linear-gradient(135deg,#7c3aed,#4f46e5)'}}>T</div>
-            <span className="text-white font-bold text-lg tracking-tight">Textile MS</span>
+            <div className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center shadow-2xl shadow-violet-500/40 flex-shrink-0"
+              style={{background:'linear-gradient(135deg,#7c3aed,#4f46e5)'}}>
+              {company?.logo
+                ? <img src={company.logo} alt="logo" className="w-full h-full object-contain p-1" />
+                : <span className="text-white font-black text-xl">{company?.name?.[0] || 'T'}</span>
+              }
+            </div>
+            <span className="text-white font-bold text-lg tracking-tight">{company?.name || 'Textile MS'}</span>
           </div>
 
           <h1 className="text-5xl font-black text-white leading-[1.1] mb-5">
@@ -79,9 +94,14 @@ export default function Login() {
             {/* Card header */}
             <div className="px-8 pt-8 pb-6 border-b border-white/8">
               <div className="lg:hidden flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-black text-sm"
-                  style={{background:'linear-gradient(135deg,#7c3aed,#4f46e5)'}}>T</div>
-                <span className="text-white font-bold text-sm">Textile MS</span>
+                <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
+                  style={{background:'linear-gradient(135deg,#7c3aed,#4f46e5)'}}>
+                  {company?.logo
+                    ? <img src={company.logo} alt="logo" className="w-full h-full object-contain p-0.5" />
+                    : <span className="text-white font-black text-sm">{company?.name?.[0] || 'T'}</span>
+                  }
+                </div>
+                <span className="text-white font-bold text-sm">{company?.name || 'Textile MS'}</span>
               </div>
               <h2 className="text-xl font-bold text-white mb-1">Sign in</h2>
               <p className="text-white/40 text-sm">Enter your credentials to continue</p>
