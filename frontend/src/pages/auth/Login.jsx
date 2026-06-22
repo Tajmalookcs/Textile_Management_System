@@ -149,6 +149,17 @@ export default function Login() {
             </div>
           </div>
           <p className="text-center text-white/20 text-xs mt-6">Textile Management System · v1.0.0</p>
+          {/* Developer Tag */}
+          <div className="mt-4 flex justify-center">
+            <div className="inline-flex flex-col items-center gap-0.5 px-5 py-2.5 rounded-xl border border-[#4f46e5]/40 bg-[#0d0b1e]/60 backdrop-blur-sm">
+              <span className="text-[9px] font-bold tracking-[0.2em] text-[#818cf8]/60 uppercase">Professional Web Solutions</span>
+              <span className="text-sm font-black tracking-widest text-white/90">ALAMGEER</span>
+              <span className="text-[10px] font-bold tracking-[0.25em] text-[#818cf8]/70 uppercase">Developers</span>
+              <div className="w-12 h-px bg-gradient-to-r from-transparent via-[#4f46e5]/60 to-transparent my-0.5" />
+              <span className="text-[10px] font-semibold tracking-wider text-white/50">0304-6270546</span>
+              <span className="text-[8px] tracking-[0.15em] text-white/25 uppercase mt-0.5">Built with Passion · Code with Purpose</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
