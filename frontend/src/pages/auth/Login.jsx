@@ -3,6 +3,66 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 
+function DevCard({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+      <div
+        className="relative z-10 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl"
+        style={{ background: 'linear-gradient(135deg,#0d0b1e 0%,#1a1542 60%,#0f0c29 100%)', border: '2px solid rgba(79,70,229,0.5)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* top stars row */}
+        <div className="flex justify-between px-6 pt-5 text-[#4f46e5]/40 text-xs tracking-[0.3em]">
+          <span>✦</span><span>PROFESSIONAL WEB SOLUTIONS</span><span>✦</span>
+        </div>
+
+        {/* code icon */}
+        <div className="flex justify-center mt-4">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)' }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+            </svg>
+          </div>
+        </div>
+
+        {/* name */}
+        <div className="text-center mt-5 px-6">
+          <h2 className="text-4xl font-black tracking-[0.15em] text-white">ALAMGEER</h2>
+          <div className="w-3/4 mx-auto h-px my-3" style={{ background: 'linear-gradient(90deg,transparent,#4f46e5,transparent)' }} />
+          <p className="text-base font-bold tracking-[0.4em] text-[#818cf8]">DEVELOPERS</p>
+        </div>
+
+        {/* divider */}
+        <div className="w-full h-px my-5" style={{ background: 'linear-gradient(90deg,transparent,rgba(79,70,229,0.4),transparent)' }} />
+
+        {/* phone */}
+        <div className="flex justify-center">
+          <a href="tel:03046270546"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-white font-bold text-lg tracking-widest transition-all hover:scale-105"
+            style={{ background: 'rgba(79,70,229,0.15)', border: '1px solid rgba(79,70,229,0.3)' }}>
+            <svg width="18" height="18" fill="none" stroke="#818cf8" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z" />
+            </svg>
+            0304-6270546
+          </a>
+        </div>
+
+        {/* footer */}
+        <p className="text-center text-[9px] tracking-[0.25em] text-white/20 uppercase py-5">
+          Built with Passion · Code with Purpose
+        </p>
+
+        {/* close */}
+        <button onClick={onClose}
+          className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-white/30 hover:text-white/70 hover:bg-white/10 transition-all text-lg">
+          ×
+        </button>
+      </div>
+    </div>
+  )
+}
+
 const features = [
   { icon: '✓', text: 'FBR Sales Tax Invoice (SRO 288/2026)' },
   { icon: '✓', text: 'Production Batch Tracking' },
@@ -18,6 +78,7 @@ export default function Login() {
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
   const [company, setCompany] = useState(null)
+  const [showDev, setShowDev] = useState(false)
 
   useEffect(() => {
     axios.get('/api/company/').then(r => {
@@ -150,8 +211,9 @@ export default function Login() {
           </div>
           <p className="text-center text-white/20 text-xs mt-6">Textile Management System · v1.0.0</p>
           {/* Developer Tag */}
+          {showDev && <DevCard onClose={() => setShowDev(false)} />}
           <div className="mt-4 flex justify-center">
-            <div className="inline-flex flex-col items-center gap-0.5 px-5 py-2.5 rounded-xl border border-[#4f46e5]/40 bg-[#0d0b1e]/60 backdrop-blur-sm">
+            <div onClick={() => setShowDev(true)} className="cursor-pointer inline-flex flex-col items-center gap-0.5 px-5 py-2.5 rounded-xl border border-[#4f46e5]/40 bg-[#0d0b1e]/60 backdrop-blur-sm hover:border-[#4f46e5]/80 hover:bg-[#1a1542]/60 transition-all hover:scale-105">
               <span className="text-[9px] font-bold tracking-[0.2em] text-[#818cf8]/60 uppercase">Professional Web Solutions</span>
               <span className="text-sm font-black tracking-widest text-white/90">ALAMGEER</span>
               <span className="text-[10px] font-bold tracking-[0.25em] text-[#818cf8]/70 uppercase">Developers</span>
