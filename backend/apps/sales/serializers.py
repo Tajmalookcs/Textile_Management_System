@@ -33,12 +33,14 @@ class InvoiceSerializer(serializers.ModelSerializer):
     customer_ntn         = serializers.CharField(source='customer.ntn', read_only=True, default='')
     customer_province    = serializers.CharField(source='customer.province', read_only=True, default='')
     customer_ntn_verified = serializers.BooleanField(source='customer.ntn_verified', read_only=True)
-    invoice_no           = serializers.CharField(source='invoice_number', required=False)
+    invoice_no              = serializers.CharField(source='invoice_number', required=False)
     place_of_supply_display = serializers.SerializerMethodField()
-    total_qty            = serializers.SerializerMethodField()
-    total_value_excl_tax = serializers.SerializerMethodField()
-    total_sales_tax      = serializers.SerializerMethodField()
-    total_value_incl_tax = serializers.SerializerMethodField()
+    total_qty               = serializers.SerializerMethodField()
+    total_value_excl_tax    = serializers.SerializerMethodField()
+    total_sales_tax         = serializers.SerializerMethodField()
+    total_value_incl_tax    = serializers.SerializerMethodField()
+    original_invoice_number = serializers.CharField(source='original_invoice.invoice_number', read_only=True, default='')
+    credit_notes_count      = serializers.SerializerMethodField()
 
     class Meta:
         model  = Invoice
@@ -59,6 +61,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     def get_total_value_incl_tax(self, obj):
         return float(sum(item.value_incl_tax for item in obj.items.all()))
+
+    def get_credit_notes_count(self, obj):
+        return obj.credit_notes.count()
 
     def create(self, validated_data):
         request = self.context.get('request')

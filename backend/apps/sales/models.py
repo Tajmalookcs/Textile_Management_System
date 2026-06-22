@@ -55,6 +55,14 @@ class Invoice(models.Model):
     fbr_submitted_at = models.DateTimeField(null=True, blank=True)
     fbr_error        = models.TextField(blank=True)
 
+    # Credit Note fields
+    is_credit_note       = models.BooleanField(default=False, verbose_name='Is Credit Note')
+    original_invoice     = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='credit_notes', verbose_name='Original Invoice'
+    )
+    cancellation_reason  = models.TextField(blank=True, verbose_name='Cancellation / Credit Note Reason')
+
     class Meta:
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
