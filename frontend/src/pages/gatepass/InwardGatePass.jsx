@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import Layout from '../../components/Layout'
+import Layout from '../../components/Layout/Layout'
 import api from '../../services/api'
 
 const STATUS_COLORS = {
