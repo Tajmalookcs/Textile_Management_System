@@ -17,6 +17,7 @@ import Settings from '../pages/settings/Settings'
 import Users from '../pages/users/Users'
 import Accounts from '../pages/accounts/Accounts'
 import InwardGatePass from '../pages/gatepass/InwardGatePass'
+import OutwardGatePass from '../pages/gatepass/OutwardGatePass'
 
 function Protected({ children }) {
   const { user } = useAuth()
@@ -44,7 +45,8 @@ export default function AppRoutes() {
         <Route path="/settings"   element={<Protected><Settings /></Protected>} />
         <Route path="/users"      element={<Protected><Users /></Protected>} />
         <Route path="/accounts"    element={<Protected><Accounts /></Protected>} />
-        <Route path="/gate-passes" element={<Protected><InwardGatePass /></Protected>} />
+        <Route path="/gate-passes"         element={<Protected><InwardGatePass /></Protected>} />
+        <Route path="/outward-gate-passes" element={<Protected><OutwardGatePass /></Protected>} />
         <Route path="*"           element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
