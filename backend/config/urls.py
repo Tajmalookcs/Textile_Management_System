@@ -13,6 +13,7 @@ from apps.purchases.views import SupplierViewSet, PurchaseOrderViewSet, Purchase
 from apps.production.views import ProcessingBatchViewSet, BatchInputViewSet, BatchOutputViewSet
 from apps.sales.views import CustomerViewSet, InvoiceViewSet, InvoiceItemViewSet, ntn_lookup_view, str_lookup_view
 from apps.accounts.views import LedgerEntryViewSet, AccountViewSet
+from apps.gatepass.views import InwardGatePassViewSet, InwardGatePassItemViewSet
 
 router = DefaultRouter()
 
@@ -34,8 +35,10 @@ router.register(r'batch-outputs',        BatchOutputViewSet,      basename='batc
 router.register(r'customers',            CustomerViewSet,         basename='customer')
 router.register(r'invoices',             InvoiceViewSet,          basename='invoice')
 router.register(r'invoice-items',        InvoiceItemViewSet,      basename='invoice-item')
-router.register(r'accounts',             AccountViewSet,          basename='account')
-router.register(r'ledger',               LedgerEntryViewSet,      basename='ledger')
+router.register(r'accounts',             AccountViewSet,           basename='account')
+router.register(r'ledger',               LedgerEntryViewSet,       basename='ledger')
+router.register(r'gate-passes',          InwardGatePassViewSet,    basename='gate-pass')
+router.register(r'gate-pass-items',      InwardGatePassItemViewSet,basename='gate-pass-item')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
